@@ -14,6 +14,7 @@ export default {
     <h2 class="name">{{ pokemon.name }}</h2>
     <img v-bind:src="pokemon.image" v-bind:alt="pokemon.name" />
     <p>N° {{ pokemon.id }}</p>
+    <p>Type(s) :</p>
     <p v-for="t in pokemon.types" v-bind:key="t" class="type">{{ t }}</p>
   </div>
 </template>
@@ -24,7 +25,7 @@ export default {
   border-radius: 30%;
   padding: 0.5rem;
   text-align: center;
-  width: 250px;
+  width: 275px;
   margin: 1rem;
   color: #212121;
   background: linear-gradient(
