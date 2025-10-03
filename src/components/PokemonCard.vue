@@ -57,7 +57,7 @@ export default {
 
 <style>
 .pokemon-card {
-  border: 10px solid #212121;
+  border: 5px solid #212121;
   border-radius: 40%;
   padding: 0.5rem;
   text-align: center;
