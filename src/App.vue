@@ -1,4 +1,5 @@
 <script setup>
+// imports
 import { ref, onMounted } from 'vue'
 import { useFavoritesStore } from './stores/useFavoritesStore'
 import { supabase } from './lib/supabaseClient'
@@ -18,7 +19,7 @@ onMounted(async () => {
   const { data } = await supabase.auth.getUser()
   user.value = data.user
 
-  // états de session (connexion / déconnexion)
+  // connexion/deconnexion
   supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user || null
   })
@@ -40,9 +41,9 @@ const signOut = async () => {
     <div v-else class="lists">
       <p>Connecté en tant que : {{ user.email }}</p>
       <button v-on:click="signOut">Se déconnecter</button>
-      <!-- liste des favoris -->
+      <!-- liste favoris -->
       <FavoritesList />
-      <!-- liste complète des Pokémons -->
+      <!-- liste pokémon -->
       <PokemonList />
     </div>
   </main>

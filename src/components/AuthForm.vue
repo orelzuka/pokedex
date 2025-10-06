@@ -11,6 +11,17 @@ const isLogin = ref(true)
 
 const favStore = useFavoritesStore()
 
+// inscription
+const signUp = async () => {
+  message.value = ''
+  const { error } = await supabase.auth.signUp({
+    email: email.value,
+    password: password.value,
+  })
+  if (error) message.value = error.message
+  else message.value = 'Inscription réussie'
+}
+
 // connexion
 const signIn = async () => {
   message.value = ''
@@ -23,17 +34,6 @@ const signIn = async () => {
     message.value = 'Connexion réussie'
     await favStore.init()
   }
-}
-
-// inscription
-const signUp = async () => {
-  message.value = ''
-  const { error } = await supabase.auth.signUp({
-    email: email.value,
-    password: password.value,
-  })
-  if (error) message.value = error.message
-  else message.value = 'Inscription réussie'
 }
 
 // déconnexion

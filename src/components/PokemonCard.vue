@@ -19,7 +19,7 @@ const isFav = computed(() => favStore.isFavorite(pokemonId.value))
 
 const animateStar = ref(false)
 
-// ajoute ou retire le Pokémon des favoris
+// ajoute ou retire en favori
 const toggleFav = async () => {
   await favStore.toggleFavorite({
     id: pokemonId.value,
@@ -29,7 +29,7 @@ const toggleFav = async () => {
   })
 }
 
-// déclenche l’animation quand isFav passe à true
+// déclenche l’animation
 watch(isFav, (newVal) => {
   if (newVal) {
     animateStar.value = true
@@ -54,7 +54,7 @@ watch(isFav, (newVal) => {
 
     <p>N° {{ pokemonId }}</p>
 
-    <!-- affichage dynamique des types si singulier ou pluriel -->
+    <!-- affichage dynamique des types -->
     <p v-if="pokemon.types && pokemon.types.length" class="types">
       {{ pokemon.types.length > 1 ? 'Types' : 'Type' }} :
       {{ pokemon.types.join(', ') }}
@@ -63,7 +63,7 @@ watch(isFav, (newVal) => {
   </div>
 </template>
 
-<style>
+<style scoped>
 .pokemon-card {
   border: 5px solid #212121;
   border-radius: 40%;
@@ -135,7 +135,7 @@ watch(isFav, (newVal) => {
   color: #ccc;
 }
 
-/* animation */
+/* animation étoiles*/
 @keyframes starPop {
   0% {
     transform: scale(1);

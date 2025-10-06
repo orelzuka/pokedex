@@ -9,17 +9,17 @@ export const useFavoritesStore = defineStore('favorites', {
   }),
 
   getters: {
-    // vérifie si un pokémon est déjà en favori
+    // vérifie si le pokémon est déjà en favori
     isFavorite: (state) => {
       return (id) => state.favorites.some((p) => p.pokemon_id === id)
     },
 
-    // nombre total de favoris
+    // nb total de favoris
     count: (state) => state.favorites.length,
   },
 
   actions: {
-    // initialisation changements d'utilisateur et charge les favoris
+    // initialisation changement d'utilisateur et charge ses favoris
     async init() {
       const { data } = await supabase.auth.getUser()
       this.user = data?.user || null
@@ -88,7 +88,7 @@ export const useFavoritesStore = defineStore('favorites', {
       }
     },
 
-    // supprime un Pokémon des favoris
+    // supprime un pokémon des favoris
     async removeFavorite(pokemonId) {
       if (!this.user) {
         alert('Connecte-toi pour retirer un favori')
@@ -103,12 +103,12 @@ export const useFavoritesStore = defineStore('favorites', {
       if (error) {
         console.error('Erreur suppression favori:', error)
       } else {
-        // met à jour la liste après suppression
+        // màj liste après suppression
         this.favorites = this.favorites.filter((p) => p.pokemon_id !== pokemonId)
       }
     },
 
-    // ajoute ou retire un Pokémon des favoris selon l’état
+    // ajoute ou retire un pokémon des favoris selon état
     async toggleFavorite(pokemon) {
       if (!pokemon) return
 
