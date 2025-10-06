@@ -89,10 +89,6 @@ export default {
   color: #eeeeee;
 }
 
-.image {
-  width: 40%;
-}
-
 .types {
   text-transform: capitalize;
 }

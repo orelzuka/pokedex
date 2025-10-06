@@ -13,7 +13,7 @@ export default {
 </script>
 
 <template>
-  <h2>Mes Favoris</h2>
+  <h2>Mes Pokémons Favoris</h2>
 
   <!-- si aucun favori -->
   <p v-if="favStore.favorites.length === 0">Aucun Pokémon en favori pour le moment.</p>
