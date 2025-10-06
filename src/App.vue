@@ -2,6 +2,7 @@
 // imports
 import { ref, onMounted } from 'vue'
 import { useFavoritesStore } from './stores/useFavoritesStore'
+import { useThemeStore } from './stores/useThemeStore'
 import { supabase } from './lib/supabaseClient'
 
 // composants
@@ -11,6 +12,7 @@ import AuthForm from './components/AuthForm.vue'
 
 // stores
 const favStore = useFavoritesStore()
+const themeStore = useThemeStore()
 const user = ref(null)
 
 onMounted(async () => {
@@ -25,6 +27,10 @@ onMounted(async () => {
   })
 })
 
+onMounted(() => {
+  themeStore.applyTheme()
+})
+
 const signOut = async () => {
   await supabase.auth.signOut()
 }
@@ -32,15 +38,21 @@ const signOut = async () => {
 
 <template>
   <main>
-    <h1>TP : Pokédex en Vue.js</h1>
-
+    <header class="header">
+      <h1>TP : Pokédex en Vue.js</h1>
+    </header>
     <div v-if="!user">
       <AuthForm />
     </div>
 
     <div v-else class="lists">
       <p>Connecté en tant que : {{ user.email }}</p>
-      <button v-on:click="signOut">Se déconnecter</button>
+      <div>
+        <button v-on:click="signOut">Se déconnecter</button>
+        <button class="theme-toggle" v-on:click="themeStore.toggleTheme">
+          {{ themeStore.isDark ? 'Light mode' : 'Dark mode' }}
+        </button>
+      </div>
       <!-- liste favoris -->
       <FavoritesList />
       <!-- liste pokémon -->
@@ -59,22 +71,42 @@ main {
 }
 
 button {
-  background: #222;
-  color: #fff;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  margin-bottom: 1rem;
-  border-radius: 6px;
+  background: #212121;
+  border: 2px solid #212121;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
   cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s ease;
 }
 
 button:hover {
-  background: #444;
+  background: #444444;
+  color: #fff;
 }
 
 .lists {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.theme-toggle {
+  background: #212121;
+  border: 2px solid #212121;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s ease;
+  margin-left: 1rem;
+}
+
+.theme-toggle:hover {
+  background: #444444;
+  color: #fff;
 }
 </style>

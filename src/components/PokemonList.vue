@@ -10,23 +10,26 @@ export default {
       pokemons: [],
       loading: false,
       error: null,
-      limit: 21, // nb pokémon par page
-      offset: 0, // position actuelle
-      totalCount: null, // total renvoyé par l’API
+      limit: 20,
+      offset: 0,
+      allLoaded: false,
     }
   },
   methods: {
-    // chargement d'une page
     async loadPokemons() {
+      if (this.loading || this.allLoaded) return
+
       this.loading = true
       this.error = null
-
       try {
-        // appel API avec limit et offset
         const data = await fetchPokemonList(this.limit, this.offset)
-        if (this.totalCount === null) this.totalCount = data.count
 
-        // récupération détails pokémon
+        // si l'API ne renvoie plus de résultats
+        if (!data.results.length) {
+          this.allLoaded = true
+          return
+        }
+
         const details = await Promise.all(
           data.results.map(async (p) => {
             const d = await fetchPokemonDetail(p.name)
@@ -39,45 +42,47 @@ export default {
           }),
         )
 
-        // ajout nouveaux pokémons à la liste existante
         this.pokemons.push(...details)
-
-        // prochain offset
         this.offset += this.limit
       } catch (err) {
-        console.error(err)
         this.error = err.message
       } finally {
         this.loading = false
       }
     },
+
+    // chargement en bas de page
+    handleScroll() {
+      const bottomOfPage = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200
+
+      if (bottomOfPage && !this.loading && !this.allLoaded) {
+        this.loadPokemons()
+      }
+    },
   },
   mounted() {
-    // chargement initial
     this.loadPokemons()
+    window.addEventListener('scroll', this.handleScroll)
+  },
+  beforeUnmount() {
+    window.removeEventListener('scroll', this.handleScroll)
   },
 }
 </script>
 
 <template>
   <h2>Pokédex National</h2>
-
   <p v-if="error" class="error">{{ error }}</p>
-  <p v-if="loading && pokemons.length === 0">Chargement...</p>
 
   <div v-if="pokemons.length" class="pokemons-list">
-    <PokemonCard v-for="p in pokemons" v-bind:key="p.id" :pokemon="p" />
+    <PokemonCard v-for="p in pokemons" :key="p.id" :pokemon="p" />
   </div>
-
-  <!-- bouton charger plus -->
+  <!-- "bouton charger plus" (remplacé par un "infinite scroll")
   <div class="controls" v-if="!loading && pokemons.length < totalCount">
     <button v-on:click="loadPokemons">Charger plus</button>
-  </div>
-
-  <p v-if="loading && pokemons.length > 0">Chargement des suivants...</p>
-  <p v-if="pokemons.length >= totalCount && totalCount !== null" class="end">
-    Tous les Pokémon sont chargés.
-  </p>
+  </div> -->
+  <p v-if="loading">Chargement...</p>
+  <p v-if="allLoaded" class="end">Tous les Pokémon ont été chargés.</p>
 </template>
 
 <style>
@@ -90,7 +95,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  max-width: 70%;
+  max-width: 65%;
   gap: 0.5rem;
   margin: 1rem auto;
   border: solid 2px #707070;
@@ -128,7 +133,8 @@ export default {
 
 .end {
   text-align: center;
-  margin-top: 1rem;
+  font-style: italic;
   color: #555;
+  margin: 1rem;
 }
 </style>

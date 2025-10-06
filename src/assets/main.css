@@ -16,3 +16,33 @@ h1 {
   font-weight: bolder;
   font-size: 2.5rem;
 }
+
+h2 {
+  margin-top: 2rem;
+}
+
+body {
+  background: linear-gradient(0deg, rgba(196, 196, 196, 1) 0%, rgba(238, 238, 238, 1) 50%);
+  color: #212121;
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* dark mode global */
+body.dark {
+  background: linear-gradient(0deg, rgba(33, 33, 33, 1) 0%, rgba(61, 61, 61, 1) 50%);
+  color: #eeeeee;
+}
+
+body.dark button {
+  border-color: #eeeeee;
+}

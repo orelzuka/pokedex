@@ -1,4 +1,4 @@
-/* color palette from <https://github.com/vuejs/theme> */
+/* color palette from <https://github.com/vuejs/theme>
 :root {
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;
@@ -19,9 +19,9 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
-}
+} */
 
-/* semantic color variables for this project */
+/* semantic color variables for this project
 :root {
   --color-background: linear-gradient(0deg, rgba(196, 196, 196, 1) 0%, rgba(238, 238, 238, 1) 50%);
   --color-background-soft: var(--vt-c-white-soft);
@@ -34,9 +34,9 @@
   --color-text: var(--vt-c-text-light-1);
 
   --section-gap: 160px;
-}
+} */
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --color-background: linear-gradient(0deg, rgba(33, 33, 33, 1) 0%, rgba(61, 61, 61, 1) 50%);
     --color-background-soft: var(--vt-c-black-soft);
@@ -48,7 +48,7 @@
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: #eeeeee;
   }
-}
+} */
 
 *,
 *::before,

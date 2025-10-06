@@ -40,13 +40,15 @@ watch(isFav, (newVal) => {
 
 <template>
   <div class="pokemon-card">
-    <h2 class="name">{{ pokemon.name }}</h2>
-    <img :src="pokemon.image" :alt="pokemon.name" class="image" />
+    <p class="name">{{ pokemon.name }}</p>
+    <img v-bind:src="pokemon.image" :alt="pokemon.name" class="image" />
 
     <!-- bouton "favoris" -->
     <div class="fav-btn-container">
-      <button class="fav-btn" @click.stop="toggleFav">
-        <span :class="[isFav ? 'star-active' : 'star-inactive', { 'star-animate': animateStar }]">
+      <button class="fav-btn" v-on:click.stop="toggleFav">
+        <span
+          v-bind:class="[isFav ? 'star-active' : 'star-inactive', { 'star-animate': animateStar }]"
+        >
           ★
         </span>
       </button>
@@ -92,8 +94,13 @@ watch(isFav, (newVal) => {
 
 .name {
   font-weight: bold;
+  font-size: x-large;
   text-transform: capitalize;
   color: #eeeeee;
+}
+
+.image {
+  width: 27.5%;
 }
 
 .types {
@@ -103,6 +110,7 @@ watch(isFav, (newVal) => {
 .fav-btn {
   display: block;
   padding: 0px 10px 5px 10px;
+  margin-bottom: 0.5rem;
   border: none;
   border-radius: 45%;
   cursor: pointer;
@@ -135,7 +143,7 @@ watch(isFav, (newVal) => {
   color: #ccc;
 }
 
-/* animation étoiles*/
+/* animation etoile fav */
 @keyframes starPop {
   0% {
     transform: scale(1);
