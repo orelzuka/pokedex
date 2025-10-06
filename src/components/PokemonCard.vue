@@ -1,55 +1,55 @@
-<script>
+<script setup>
+import { computed } from 'vue'
 import { useFavoritesStore } from '../stores/useFavoritesStore'
 
-export default {
-  name: 'PokemonCard',
-  props: {
-    pokemon: {
-      type: Object,
-    },
+// props : chaque carte reçoit un objet "pokemon"
+const props = defineProps({
+  pokemon: {
+    type: Object,
+    required: true,
   },
-  data() {
-    return {
-      favStore: null,
-    }
-  },
-  created() {
-    this.favStore = useFavoritesStore()
-  },
-  computed: {
-    isFav() {
-      return this.favStore.isFavorite(this.pokemon.id)
-    },
-  },
-  methods: {
-    toggleFav() {
-      this.favStore.toggleFavorite({
-        id: this.pokemon.id,
-        name: this.pokemon.name,
-        image: this.pokemon.image,
-        types: this.pokemon.types,
-      })
-    },
-  },
+})
+
+// store pinia
+const favStore = useFavoritesStore()
+
+// ✅ identifiant unifié (pour gérer à la fois les Pokémon normaux et ceux de Supabase)
+const pokemonId = computed(() => props.pokemon.pokemon_id || props.pokemon.id)
+
+// ✅ vérifie si le Pokémon est déjà en favoris
+const isFav = computed(() => favStore.isFavorite(pokemonId.value))
+
+// ✅ ajoute ou retire le Pokémon des favoris
+const toggleFav = async () => {
+  await favStore.toggleFavorite({
+    id: pokemonId.value,
+    name: props.pokemon.name,
+    image: props.pokemon.image,
+    types: props.pokemon.types,
+  })
 }
 </script>
 
 <template>
   <div class="pokemon-card">
     <h2 class="name">{{ pokemon.name }}</h2>
-    <img v-bind:src="pokemon.image" v-bind:alt="pokemon.name" class="image" />
+    <img :src="pokemon.image" :alt="pokemon.name" class="image" />
+
     <!-- bouton "favoris" -->
     <div class="fav-btn-container">
       <button class="fav-btn" @click.stop="toggleFav">
+        <!-- l'étoile se remplit dynamiquement -->
         <span v-if="isFav">★</span>
         <span v-else>☆</span>
       </button>
     </div>
-    <p>N° {{ pokemon.id }}</p>
 
-    <!-- affichage dynamique au singulier ou au pluriel selon le nombre de types du pokemon-->
+    <p>N° {{ pokemonId }}</p>
+
+    <!-- affichage dynamique Type / Types -->
     <p v-if="pokemon.types && pokemon.types.length" class="types">
-      {{ pokemon.types.length > 1 ? 'Types' : 'Type' }} : {{ pokemon.types.join(', ') }}
+      {{ pokemon.types.length > 1 ? 'Types' : 'Type' }} :
+      {{ pokemon.types.join(', ') }}
     </p>
     <p v-else class="types">Type inconnu</p>
   </div>
@@ -59,10 +59,9 @@ export default {
 .pokemon-card {
   border: 5px solid #212121;
   border-radius: 40%;
-  padding: 0.5rem;
   text-align: center;
-  width: 260px;
-  height: 260px;
+  width: 275px;
+  height: 275px;
   margin: 1rem;
   color: #212121;
   background: linear-gradient(
@@ -102,11 +101,14 @@ export default {
   background: #212121;
   color: #eeeeee;
   font-size: 2rem;
-  transition: background 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .fav-btn:hover {
   background: #444;
+  transform: scale(1.1);
 }
 
 .fav-btn-container {

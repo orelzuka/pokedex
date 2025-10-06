@@ -1,73 +1,128 @@
 import { defineStore } from 'pinia'
-
-const LOCAL_KEY = 'vue-pokedex-favorites-v1'
+import { supabase } from '../lib/supabaseClient'
 
 export const useFavoritesStore = defineStore('favorites', {
   state: () => ({
     favorites: [],
+    user: null,
+    loading: false,
   }),
 
   getters: {
+    // vérifie si un pokémon est déjà en favori
     isFavorite: (state) => {
-      return (id) => state.favorites.some((p) => p.id === id)
+      return (id) => state.favorites.some((p) => p.pokemon_id === id)
     },
+
+    // nombre total de favoris
     count: (state) => state.favorites.length,
   },
 
   actions: {
-    loadFromLocalStorage() {
-      try {
-        const raw = localStorage.getItem(LOCAL_KEY)
-        if (raw) {
-          const parsed = JSON.parse(raw)
-          if (Array.isArray(parsed)) {
-            this.favorites = parsed
-          }
+    // initialisation changements d'utilisateur et charge les favoris
+    async init() {
+      const { data } = await supabase.auth.getUser()
+      this.user = data?.user || null
+
+      // écoute connexion / déconnexion
+      supabase.auth.onAuthStateChange(async (_, session) => {
+        this.user = session?.user ?? null
+        if (this.user) {
+          await this.loadFavorites()
+        } else {
+          this.favorites = []
         }
-      } catch (err) {}
-    },
-
-    saveToLocalStorage() {
-      try {
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(this.favorites))
-      } catch (err) {}
-    },
-
-    addFavorite(pokemon) {
-      if (!pokemon || pokemon.id == null) return
-      if (!this.isFavorite(pokemon.id)) {
-        const toStore = {
-          id: pokemon.id,
-          name: pokemon.name || '',
-          image: pokemon.image || '',
-          types: pokemon.types || [],
-        }
-        this.favorites.push(toStore)
-        this.saveToLocalStorage()
-      }
-    },
-
-    removeFavorite(id) {
-      this.favorites = this.favorites.filter((p) => p.id !== id)
-      this.saveToLocalStorage()
-    },
-
-    toggleFavorite(pokemon) {
-      if (!pokemon || pokemon.id == null) return
-      if (this.isFavorite(pokemon.id)) {
-        this.removeFavorite(pokemon.id)
-      } else {
-        this.addFavorite(pokemon)
-      }
-    },
-
-    init() {
-      this.loadFromLocalStorage()
-      this.$subscribe(() => {
-        try {
-          localStorage.setItem(LOCAL_KEY, JSON.stringify(this.favorites))
-        } catch (err) {}
       })
+
+      if (this.user) {
+        await this.loadFavorites()
+      }
+    },
+
+    // récupère les favoris depuis supabase
+    async loadFavorites() {
+      if (!this.user) return
+      this.loading = true
+
+      const { data, error } = await supabase
+        .from('favorites')
+        .select('*')
+        .eq('user_id', this.user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Erreur lors du chargement des favoris:', error)
+      } else {
+        this.favorites = data || []
+      }
+
+      this.loading = false
+    },
+
+    // ajoute un ookémon en favori
+    async addFavorite(pokemon) {
+      if (!this.user) {
+        alert('Connecte-toi pour ajouter un favori')
+        return
+      }
+
+      const pokemonId = pokemon.pokemon_id || pokemon.id
+      if (this.isFavorite(pokemonId)) return
+
+      const { data, error } = await supabase
+        .from('favorites')
+        .insert({
+          user_id: this.user.id,
+          pokemon_id: pokemonId,
+          name: pokemon.name,
+          image: pokemon.image,
+          types: Array.isArray(pokemon.types) ? pokemon.types : [],
+        })
+        .select()
+
+      if (error) {
+        console.error('Erreur ajout favori:', error)
+      } else if (data && data.length) {
+        // ajoute le favori dans la liste locale
+        this.favorites.unshift(data[0])
+      }
+    },
+
+    // supprime un Pokémon des favoris
+    async removeFavorite(pokemonId) {
+      if (!this.user) {
+        alert('Connecte-toi pour retirer un favori')
+        return
+      }
+
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .match({ user_id: this.user.id, pokemon_id: pokemonId })
+
+      if (error) {
+        console.error('Erreur suppression favori:', error)
+      } else {
+        // met à jour la liste locale après suppression
+        this.favorites = this.favorites.filter((p) => p.pokemon_id !== pokemonId)
+      }
+    },
+
+    // 🔁 Ajoute ou retire un Pokémon des favoris selon l’état
+    async toggleFavorite(pokemon) {
+      if (!pokemon) return
+
+      // ✅ identifiant unifié (fonctionne pour les 2 cas)
+      const pokemonId = pokemon.pokemon_id || pokemon.id
+      if (!pokemonId) return
+
+      const isFav = this.isFavorite(pokemonId)
+
+      if (isFav) {
+        await this.removeFavorite(pokemonId)
+      } else {
+        await this.addFavorite(pokemon)
+      }
     },
   },
 })
