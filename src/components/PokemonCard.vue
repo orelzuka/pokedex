@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useFavoritesStore } from '../stores/useFavoritesStore'
 
 const props = defineProps({
@@ -14,8 +14,10 @@ const favStore = useFavoritesStore()
 
 const pokemonId = computed(() => props.pokemon.pokemon_id || props.pokemon.id)
 
-// vérifie si le Pokémon est déjà en favoris
+// vérifie si lepokémon est déjà en favori
 const isFav = computed(() => favStore.isFavorite(pokemonId.value))
+
+const animateStar = ref(false)
 
 // ajoute ou retire le Pokémon des favoris
 const toggleFav = async () => {
@@ -26,6 +28,14 @@ const toggleFav = async () => {
     types: props.pokemon.types,
   })
 }
+
+// déclenche l’animation quand isFav passe à true
+watch(isFav, (newVal) => {
+  if (newVal) {
+    animateStar.value = true
+    setTimeout(() => (animateStar.value = false), 600)
+  }
+})
 </script>
 
 <template>
@@ -36,15 +46,15 @@ const toggleFav = async () => {
     <!-- bouton "favoris" -->
     <div class="fav-btn-container">
       <button class="fav-btn" @click.stop="toggleFav">
-        <!-- l'étoile se remplit dynamiquement -->
-        <span v-if="isFav">★</span>
-        <span v-else>☆</span>
+        <span :class="[isFav ? 'star-active' : 'star-inactive', { 'star-animate': animateStar }]">
+          ★
+        </span>
       </button>
     </div>
 
     <p>N° {{ pokemonId }}</p>
 
-    <!-- affichage dynamique Type / Types -->
+    <!-- affichage dynamique des types si singulier ou pluriel -->
     <p v-if="pokemon.types && pokemon.types.length" class="types">
       {{ pokemon.types.length > 1 ? 'Types' : 'Type' }} :
       {{ pokemon.types.join(', ') }}
@@ -112,5 +122,38 @@ const toggleFav = async () => {
 .fav-btn-container {
   display: flex;
   justify-content: center;
+}
+
+.star-active {
+  color: gold;
+  text-shadow:
+    0 0 10px gold,
+    0 0 20px orange;
+}
+
+.star-inactive {
+  color: #ccc;
+}
+
+/* animation */
+@keyframes starPop {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 5px gold;
+  }
+  40% {
+    transform: scale(1.6) rotate(10deg);
+    text-shadow:
+      0 0 15px gold,
+      0 0 25px orange;
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 5px gold;
+  }
+}
+
+.star-animate {
+  animation: starPop 0.6s ease-out;
 }
 </style>
