@@ -103,16 +103,15 @@ export const useFavoritesStore = defineStore('favorites', {
       if (error) {
         console.error('Erreur suppression favori:', error)
       } else {
-        // met à jour la liste locale après suppression
+        // met à jour la liste après suppression
         this.favorites = this.favorites.filter((p) => p.pokemon_id !== pokemonId)
       }
     },
 
-    // 🔁 Ajoute ou retire un Pokémon des favoris selon l’état
+    // ajoute ou retire un Pokémon des favoris selon l’état
     async toggleFavorite(pokemon) {
       if (!pokemon) return
 
-      // ✅ identifiant unifié (fonctionne pour les 2 cas)
       const pokemonId = pokemon.pokemon_id || pokemon.id
       if (!pokemonId) return
 

@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useFavoritesStore } from '../stores/useFavoritesStore'
 
-// props : chaque carte reçoit un objet "pokemon"
 const props = defineProps({
   pokemon: {
     type: Object,
@@ -13,13 +12,12 @@ const props = defineProps({
 // store pinia
 const favStore = useFavoritesStore()
 
-// ✅ identifiant unifié (pour gérer à la fois les Pokémon normaux et ceux de Supabase)
 const pokemonId = computed(() => props.pokemon.pokemon_id || props.pokemon.id)
 
-// ✅ vérifie si le Pokémon est déjà en favoris
+// vérifie si le Pokémon est déjà en favoris
 const isFav = computed(() => favStore.isFavorite(pokemonId.value))
 
-// ✅ ajoute ou retire le Pokémon des favoris
+// ajoute ou retire le Pokémon des favoris
 const toggleFav = async () => {
   await favStore.toggleFavorite({
     id: pokemonId.value,
