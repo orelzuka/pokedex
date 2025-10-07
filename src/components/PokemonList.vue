@@ -56,10 +56,24 @@ export default {
       }
     },
 
-    // pagination
-    async loadMore() {
-      this.offset += this.limit
-      await this.loadPokemons()
+    // pagination / infinite scroll
+    setupInfiniteScroll() {
+      const observer = new IntersectionObserver(
+        async (entries) => {
+          const entry = entries[0]
+          if (entry.isIntersecting && !this.loading && !this.searchedPokemon) {
+            await this.loadMore()
+          }
+        },
+        {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.5, // déclenche à mi-écran
+        },
+      )
+
+      // observer l’élément "sentinelle"
+      observer.observe(this.$refs.infiniteScrollTrigger)
     },
 
     // rechercher pokémon
@@ -85,7 +99,9 @@ export default {
   },
 
   mounted() {
-    this.loadPokemons()
+    this.loadPokemons().then(() => {
+      this.setupInfiniteScroll()
+    })
   },
 }
 </script>
@@ -124,11 +140,12 @@ export default {
   </div>
 
   <!-- pagination -->
-  <div v-if="!searchedPokemon" class="load-more-container">
+  <!--Bouton "charger plus" (remplacé par un infinite scroll) <div v-if="!searchedPokemon" class="load-more-container">
     <button v-on:click="loadMore" v-bind:disabled="loading" class="load-more-btn">
       Charger plus
     </button>
-  </div>
+  </div> -->
+  <div v-if="!searchedPokemon" ref="infiniteScrollTrigger" class="infinite-scroll-trigger"></div>
 </template>
 
 <style scoped>
