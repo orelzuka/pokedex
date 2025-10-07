@@ -4,16 +4,15 @@ import { ref, onMounted } from 'vue'
 import { useFavoritesStore } from './stores/useFavoritesStore'
 import { useThemeStore } from './stores/useThemeStore'
 import { supabase } from './lib/supabaseClient'
-
-// composants
 import FavoritesList from './components/FavoritesList.vue'
-import PokemonList from './components/PokemonList.vue'
 import AuthForm from './components/AuthForm.vue'
+import { RouterView, useRoute } from 'vue-router'
 
 // stores
 const favStore = useFavoritesStore()
 const themeStore = useThemeStore()
 const user = ref(null)
+const route = useRoute()
 
 onMounted(async () => {
   favStore.init()
@@ -21,13 +20,11 @@ onMounted(async () => {
   const { data } = await supabase.auth.getUser()
   user.value = data.user
 
-  // connexion/deconnexion
+  // connexion/déconnexion
   supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user || null
   })
-})
 
-onMounted(() => {
   themeStore.applyTheme()
 })
 
@@ -41,6 +38,7 @@ const signOut = async () => {
     <header class="header">
       <h1>TP : Pokédex en Vue.js</h1>
     </header>
+
     <div v-if="!user">
       <AuthForm />
     </div>
@@ -53,10 +51,10 @@ const signOut = async () => {
           {{ themeStore.isDark ? 'Light mode' : 'Dark mode' }}
         </button>
       </div>
-      <!-- liste favoris -->
-      <FavoritesList />
-      <!-- liste pokémon -->
-      <PokemonList />
+
+      <FavoritesList v-if="route.path === '/'" />
+
+      <RouterView />
     </div>
   </main>
 </template>

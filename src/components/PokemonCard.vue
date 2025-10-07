@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useFavoritesStore } from '../stores/useFavoritesStore'
 
 const props = defineProps({
@@ -9,6 +10,8 @@ const props = defineProps({
   },
 })
 
+const router = useRouter()
+
 // store pinia
 const favStore = useFavoritesStore()
 
@@ -16,6 +19,10 @@ const pokemonId = computed(() => props.pokemon.pokemon_id || props.pokemon.id)
 
 // vérifie si lepokémon est déjà en favori
 const isFav = computed(() => favStore.isFavorite(pokemonId.value))
+
+const goToDetails = () => {
+  router.push({ name: 'PokemonDetails', params: { id: pokemonId.value } })
+}
 
 const animateStar = ref(false)
 
@@ -39,7 +46,7 @@ watch(isFav, (newVal) => {
 </script>
 
 <template>
-  <div class="pokemon-card">
+  <div class="pokemon-card" v-on:click="goToDetails">
     <p class="name">{{ pokemon.name }}</p>
     <img v-bind:src="pokemon.image" :alt="pokemon.name" class="image" />
 
