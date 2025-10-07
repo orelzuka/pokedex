@@ -20,7 +20,11 @@ export default {
 
   <!-- sinon, afficher la liste -->
   <div v-else class="favorites-list">
-    <PokemonCard v-for="p in favStore.favorites" v-bind:key="p.id" v-bind:pokemon="p" />
+    <PokemonCard
+      v-for="pokemon in favStore.favorites"
+      v-bind:key="pokemon.id"
+      v-bind:pokemon="pokemon"
+    />
   </div>
 </template>
 

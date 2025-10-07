@@ -31,13 +31,13 @@ export default {
         }
 
         const details = await Promise.all(
-          data.results.map(async (p) => {
-            const d = await fetchPokemonDetail(p.name)
+          data.results.map(async (pokemon) => {
+            const detail = await fetchPokemonDetail(pokemon.name)
             return {
-              id: d.id,
-              name: d.name,
-              image: d.sprites?.front_default,
-              types: d.types.map((t) => t.type.name),
+              id: detail.id,
+              name: detail.name,
+              image: detail.sprites?.front_default,
+              types: detail.types.map((types) => types.type.name),
             }
           }),
         )
@@ -75,7 +75,7 @@ export default {
   <p v-if="error" class="error">{{ error }}</p>
 
   <div v-if="pokemons.length" class="pokemons-list">
-    <PokemonCard v-for="p in pokemons" :key="p.id" :pokemon="p" />
+    <PokemonCard v-for="pokemon in pokemons" v-bind:key="pokemon.id" v-bind:pokemon="pokemon" />
   </div>
   <!-- "bouton charger plus" (remplacé par un "infinite scroll")
   <div class="controls" v-if="!loading && pokemons.length < totalCount">

@@ -15,13 +15,13 @@ export async function fetchPokemonList(limit = 21, offset = 0) {
 
 export async function fetchPokemonListMinimal({ limit = 21, offset = 0 } = {}) {
   const data = await fetchPokemonList({ limit, offset })
-  const pokemons = data.results.map((r) => {
+  const pokemons = data.results.map((results) => {
     const id = idFromUrl(r.url)
     return {
       id,
-      name: r.name,
+      name: results.name,
       image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
-      url: r.url,
+      url: results.url,
     }
   })
   return { count: data.count, next: data.next, previous: data.previous, pokemons }
@@ -40,12 +40,12 @@ async function promisePool(tasks, poolLimit = 6) {
   const results = []
   const executing = []
   for (const task of tasks) {
-    const p = Promise.resolve().then(() => task())
+    const promise = Promise.resolve().then(() => task())
     results.push(p)
-    const e = p
-      .then(() => executing.splice(executing.indexOf(e), 1))
-      .catch(() => executing.splice(executing.indexOf(e), 1))
-    executing.push(e)
+    const exe = promise
+      .then(() => executing.splice(executing.indexOf(exe), 1))
+      .catch(() => executing.splice(executing.indexOf(exe), 1))
+    executing.push(exe)
     if (executing.length >= poolLimit) {
       await Promise.race(executing)
     }
@@ -60,19 +60,19 @@ export async function fetchPokemonListWithDetails({
   concurrency = 6,
 } = {}) {
   const list = await fetchPokemonList({ limit, offset })
-  const tasks = list.results.map((r) => async () => {
-    const d = await fetchPokemonDetail(r.name)
+  const tasks = list.results.map((results) => async () => {
+    const detail = await fetchPokemonDetail(r.name)
     const image =
-      d.sprites?.other?.['official-artwork']?.front_default ||
-      d.sprites?.front_default ||
+      detail.sprites?.other?.['official-artwork']?.front_default ||
+      detail.sprites?.front_default ||
       `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${d.id}.png`
     return {
-      id: d.id,
-      name: d.name,
+      id: detail.id,
+      name: detail.name,
       image,
-      types: d.types.map((t) => t.type.name),
-      height: d.height,
-      weight: d.weight,
+      types: detail.types.map((types) => types.type.name),
+      height: detail.height,
+      weight: detail.weight,
     }
   })
 
