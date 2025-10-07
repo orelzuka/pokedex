@@ -56,7 +56,13 @@ export default {
       }
     },
 
-    // pagination / infinite scroll
+    // pagination
+    async loadMore() {
+      this.offset += this.limit
+      await this.loadPokemons()
+    },
+
+    // infinite scroll
     setupInfiniteScroll() {
       const observer = new IntersectionObserver(
         async (entries) => {
@@ -68,11 +74,10 @@ export default {
         {
           root: null,
           rootMargin: '0px',
-          threshold: 0.5, // déclenche à mi-écran
+          threshold: 0.5,
         },
       )
 
-      // observer l’élément "sentinelle"
       observer.observe(this.$refs.infiniteScrollTrigger)
     },
 
