@@ -5,19 +5,41 @@ import { fetchPokemonListWithDetails, fetchPokemonByName } from '../services/pok
 export default {
   name: 'PokemonList',
   components: { PokemonCard },
+
   data() {
     return {
       pokemons: [],
       loading: false,
       error: null,
-      limit: 20,
+
+      // pagination
       offset: 0,
-      allLoaded: false,
+      limit: 21,
+
+      // recherche
       searchQuery: '',
       searchedPokemon: null,
+      debounceTimeout: null,
     }
   },
+
+  watch: {
+    searchQuery(newQuery) {
+      clearTimeout(this.debounceTimeout)
+
+      if (!newQuery.trim()) {
+        this.searchedPokemon = null
+        return
+      }
+
+      this.debounceTimeout = setTimeout(() => {
+        this.searchPokemon()
+      }, 400)
+    },
+  },
+
   methods: {
+    // charger liste pokémon
     async loadPokemons() {
       this.loading = true
       this.error = null
@@ -26,7 +48,6 @@ export default {
           limit: this.limit,
           offset: this.offset,
         })
-
         this.pokemons = [...this.pokemons, ...pokemons]
       } catch (err) {
         this.error = err.message
@@ -41,28 +62,22 @@ export default {
       await this.loadPokemons()
     },
 
-    // recherche pokémon par nom
+    // rechercher pokémon
     async searchPokemon() {
-      if (!this.searchQuery.trim()) {
-        this.searchedPokemon = null
-        return
-      }
-
       this.loading = true
       this.error = null
-
       try {
-        const pokemon = await fetchPokemonByName(this.searchQuery.trim().toLowerCase())
-        this.searchedPokemon = pokemon
+        const results = await fetchPokemonByName(this.searchQuery)
+        this.searchedPokemon = results
       } catch (err) {
         this.searchedPokemon = null
-        this.error = 'Pokémon introuvable'
+        this.error = 'Aucun Pokémon trouvé...'
       } finally {
         this.loading = false
       }
     },
 
-    // réinitialise la recherche
+    // réinitialiser recherche
     clearSearch() {
       this.searchQuery = ''
       this.searchedPokemon = null
@@ -75,13 +90,9 @@ export default {
 }
 </script>
 
-<!-- "bouton charger plus" (remplacé par un "infinite scroll")
-  <div class="controls" v-if="!loading && pokemons.length < totalCount">
-    <button v-on:click="loadPokemons">Charger plus</button>
-  </div> -->
 <template>
   <h2>Pokédex National</h2>
-  <!-- Champ de recherche -->
+  <!-- recherche -->
   <div class="search-container">
     <input
       v-model="searchQuery"
@@ -100,12 +111,16 @@ export default {
 
   <!-- résultat recherche -->
   <div v-if="searchedPokemon" class="pokemons-list">
-    <PokemonCard :pokemon="searchedPokemon" />
+    <PokemonCard
+      v-for="pokemon in searchedPokemon"
+      v-bind:key="pokemon.id"
+      v-bind:pokemon="pokemon"
+    />
   </div>
 
-  <!-- liste complète (si pas de recherche) -->
+  <!-- si pas de recherche -->
   <div v-else class="pokemons-list">
-    <PokemonCard v-for="p in pokemons" :key="p.id" :pokemon="p" />
+    <PokemonCard v-for="pokemon in pokemons" v-bind:key="pokemon.id" v-bind:pokemon="pokemon" />
   </div>
 
   <!-- pagination -->
@@ -116,7 +131,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .error {
   color: red;
 }
@@ -125,7 +140,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  max-width: 70%;
+  max-width: 65%;
   margin: 1rem auto;
   border: solid 2px #707070;
   border-radius: 15px;
@@ -148,6 +163,7 @@ export default {
   gap: 0.5rem;
   margin-bottom: 1rem;
   width: 65%;
+  max-width: 600px;
 }
 
 .search-input {

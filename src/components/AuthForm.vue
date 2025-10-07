@@ -83,18 +83,7 @@ input {
   border-radius: 8px;
   border: 1px solid #bbb;
 }
-button {
-  padding: 0.5rem;
-  border: none;
-  background: #cc0000;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-button:hover {
-  background: #ff4444;
-}
+
 .switch-mode {
   cursor: pointer;
   font-size: 0.9rem;

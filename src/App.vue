@@ -73,6 +73,7 @@ main {
 button {
   background: #212121;
   border: 2px solid #212121;
+  color: #fff;
   border-radius: 10px;
   padding: 0.5rem 1rem;
   cursor: pointer;

@@ -1,6 +1,6 @@
 const API_BASE_URL = 'https://pokeapi.co/api/v2'
 
-// extrait ID pokémon depuis URL
+// extrait ID du pokémon depuis URL
 function extractPokemonIdFromUrl(url) {
   const urlParts = url.split('/').filter(Boolean)
   return Number(urlParts[urlParts.length - 1])
@@ -46,7 +46,7 @@ export async function fetchPokemonDetail(pokemonIdentifier) {
   return await response.json()
 }
 
-// Gestion pool pour éviter surcharge API
+// gestion pool pour éviter surcharge API
 async function promisePool(taskList, poolLimit = 6) {
   const results = []
   const runningTasks = []
@@ -69,9 +69,9 @@ async function promisePool(taskList, poolLimit = 6) {
   return Promise.all(results)
 }
 
-// recuperation liste Pokémon avec détails (nom, image, types, taille,poids)
+// recuperation liste pokémon avec détails (nom, image, types, taille,poids)
 export async function fetchPokemonListWithDetails({
-  limit = 20,
+  limit = 21,
   offset = 0,
   concurrency = 6,
 } = {}) {
@@ -105,25 +105,42 @@ export async function fetchPokemonListWithDetails({
   }
 }
 
-// recherche pokémon par nom
-export async function fetchPokemonByName(pokemonName) {
+// recherche pokémon par nom partiel
+export async function fetchPokemonByName(query) {
   try {
-    const response = await fetch(`${API_BASE_URL}/pokemon/${pokemonName.toLowerCase()}`)
+    const search = query.toLowerCase().trim()
 
-    if (!response.ok) {
-      throw new Error('Pokémon introuvable')
-    }
+    // récuperer une grande liste avant de filtrer
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=1000`)
+    if (!response.ok) throw new Error('Erreur lors du chargement des données')
 
-    const pokemonData = await response.json()
+    const data = await response.json()
 
-    return {
-      id: pokemonData.id,
-      name: pokemonData.name,
-      image: pokemonData.sprites?.other?.['official-artwork']?.front_default,
-      types: pokemonData.types.map((typeEntry) => typeEntry.type.name),
-    }
+    // filtrer les noms
+    const filtered = data.results.filter((pokemon) => pokemon.name.includes(search))
+
+    if (!filtered.length) throw new Error('Aucun Pokémon trouvé')
+
+    // charger les détails des pokémon correspondants
+    const limited = filtered.slice(0, 10)
+    const detailed = await Promise.all(
+      limited.map(async (pokemon) => {
+        const res = await fetch(pokemon.url)
+        const detail = await res.json()
+        return {
+          id: detail.id,
+          name: detail.name,
+          image:
+            detail.sprites?.other?.['official-artwork']?.front_default ||
+            detail.sprites?.front_default,
+          types: detail.types.map((types) => types.type.name),
+        }
+      }),
+    )
+
+    return detailed
   } catch (error) {
-    console.error('Erreur lors de la recherche du Pokémon :', error)
+    console.error('Erreur recherche Pokémon :', error)
     throw error
   }
 }

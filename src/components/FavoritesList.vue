@@ -28,7 +28,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .favorites-list {
   display: flex;
   flex-direction: row;
