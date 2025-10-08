@@ -19,7 +19,7 @@ export const useFavoritesStore = defineStore('favorites', {
   },
 
   actions: {
-    // initialisation changement d'utilisateur et charge ses favoris
+    // initialisation utilisateur et charge ses favoris
     async init() {
       const { data } = await supabase.auth.getUser()
       this.user = data?.user || null
@@ -39,7 +39,7 @@ export const useFavoritesStore = defineStore('favorites', {
       }
     },
 
-    // récupère les favoris depuis supabase
+    // récuperation favoris depuis supabase
     async loadFavorites() {
       if (!this.user) return
       this.loading = true

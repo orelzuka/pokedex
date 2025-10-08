@@ -1,15 +1,9 @@
-<script>
+<script setup>
 import { useFavoritesStore } from '../stores/useFavoritesStore'
 import PokemonCard from './PokemonCard.vue'
 
-export default {
-  name: 'FavoritesList',
-  components: { PokemonCard },
-  setup() {
-    const favStore = useFavoritesStore()
-    return { favStore }
-  },
-}
+// store pinia
+const favStore = useFavoritesStore()
 </script>
 
 <template>

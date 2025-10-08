@@ -26,7 +26,7 @@ const goToDetails = () => {
 
 const animateStar = ref(false)
 
-// ajoute ou retire en favori
+// ajoute /retire favori
 const toggleFav = async () => {
   await favStore.toggleFavorite({
     id: pokemonId.value,
@@ -36,7 +36,6 @@ const toggleFav = async () => {
   })
 }
 
-// déclenche l’animation
 watch(isFav, (newVal) => {
   if (newVal) {
     animateStar.value = true
@@ -48,9 +47,9 @@ watch(isFav, (newVal) => {
 <template>
   <div class="pokemon-card" v-on:click="goToDetails">
     <p class="name">{{ pokemon.name }}</p>
-    <img v-bind:src="pokemon.image" :alt="pokemon.name" class="image" />
+    <img v-bind:src="pokemon.image" v-bind:alt="pokemon.name" class="image" />
 
-    <!-- bouton "favoris" -->
+    <!-- bouton favori -->
     <div class="fav-btn-container">
       <button class="fav-btn" v-on:click.stop="toggleFav">
         <span

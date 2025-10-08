@@ -48,8 +48,8 @@ async function loadPokemon(identifier) {
   }
 }
 
-onMounted(() => {
-  loadPokemon(paramId.value)
+onMounted(async () => {
+  await loadPokemon(paramId.value)
 })
 
 watch(paramId, (newId) => {
@@ -102,7 +102,7 @@ function statLabel(rawName) {
       </header>
 
       <div class="main">
-        <img :src="pokemon.image" v-bind:alt="pokemon.name" class="artwork" />
+        <img v-bind:src="pokemon.image" v-bind:alt="pokemon.name" class="artwork" />
 
         <section class="pokemon-infos">
           <p>N° : {{ pokemon.id }}</p>
