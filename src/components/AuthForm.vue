@@ -37,10 +37,10 @@ const signIn = async () => {
     })
     if (error) throw error
 
-    message.value = '✅ Connexion réussie !'
+    message.value = 'Connexion réussie !'
     await favStore.init() // recharge les favoris après connexion
   } catch (err) {
-    message.value = `❌ ${err.message}`
+    message.value = `${err.message}`
   }
 }
 
