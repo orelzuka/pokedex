@@ -63,7 +63,7 @@ function goBack() {
 // affichage des stats
 const maxStat = computed(() => {
   const vals = pokemon.value.stats.map((stats) => stats.value)
-  return Math.max(100, ...(vals.length ? vals : [100]))
+  return Math.max(150, ...(vals.length ? vals : [150]))
 })
 
 function statFillWidth(value) {
@@ -226,10 +226,12 @@ function statLabel(rawName) {
 
 .pokemon-infos {
   font-size: 1rem;
+  text-align: justify;
 }
 
 .stats {
   margin-top: 1.25rem;
+  font-size: 1rem;
 }
 
 .stat-row {
@@ -241,7 +243,7 @@ function statLabel(rawName) {
 
 .stat-name {
   width: 110px;
-  font-weight: 600;
+  font-weight: bold;
   text-transform: none;
 }
 
@@ -255,7 +257,7 @@ function statLabel(rawName) {
 
 .stat-fill {
   height: 100%;
-  background: linear-gradient(90deg, #ffd54f, #ffb300);
+  background: linear-gradient(90deg, #9eff4f, #91ff00);
   border-radius: 999px;
   transition: width 0.4s ease;
 }
